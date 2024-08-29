@@ -108,8 +108,8 @@ jobs:
           --execution-role-arn ${{ env.TASK_EXEC_ROLE_ARN }} \
           --task-role-arn ${{ env.TASK_ROLE_ARN }} \
           --container-definitions '[{
-            "name": ${{ env.CONTAINER_NAME}},
-            "image": ${{ steps.build-image.outputs.image }},
+            "name": "${{ env.CONTAINER_NAME}}",
+            "image": "${{ steps.build-image.outputs.image }}",
             "cpu": 256,
             "memory": 512,
             "essential": true,
