@@ -133,12 +133,38 @@ jobs:
 
     - name: Create the Log Group (/ecs/php-dkr-fargate-family)
       run: |
-          LOG_GROUP_EXISTS=$(aws logs describe-log-groups --log-group-name-prefix /ecs/php-dkr-fargate-family --region us-east-1 --query 'logGroups[?logGroupName==`/ecs/php-dkr-fargate-family`].logGroupName' --output text)
+          LOG_GROUP_EXISTS=$(aws logs describe-log-groups --log-group-name-prefix /ecs/php-dkr-fargate-family --region ${{ env.AWS_REGION }} --query 'logGroups[?logGroupName==`/ecs/php-dkr-fargate-family`].logGroupName' --output text)
           if [ -z "$LOG_GROUP_EXISTS" ]; then
-            aws logs create-log-group --log-group-name /ecs/php-dkr-fargate-family --region us-east-1
+            aws logs create-log-group --log-group-name /ecs/php-dkr-fargate-family --region ${{ env.AWS_REGION }}
           else
             echo "Log group already exists. Skipping creation."
           fi
+
+    - name: Create or Update Fargate Service
+      run: |
+        SERVICE_EXISTS=$(aws ecs describe-services --cluster ${{ env.ECS_CLUSTER }} --services ${{ env.ECS_SERVICE }} --region ${{ env.AWS_REGION }} --query 'services[?status==`ACTIVE`].serviceName' --output text)
+        if [ -z "$SERVICE_EXISTS" ]; then
+          aws ecs create-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service-name ${{ env.ECS_SERVICE }} \
+            --task-definition ${{ env.TASK_DEF_FAMILY }} \
+            --desired-count 1 \
+            --launch-type FARGATE \
+            --network-configuration '{
+              "awsvpcConfiguration": {
+                "subnets": ["subnet-12345678"],
+                "assignPublicIp": "ENABLED"
+              }
+            }'
+          echo "Fargate service created."
+        else
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_SERVICE }} \
+            --task-definition ${{ env.TASK_DEF_FAMILY }} \
+            --desired-count 1
+          echo "Fargate service updated."
+        fi
           
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
