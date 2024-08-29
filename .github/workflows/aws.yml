@@ -82,6 +82,10 @@ jobs:
       run: |
           aws s3 cp s3://${{ env.BUCKET_NAME }}/task-definition.json .aws/task-definition.json
 
+    - name: Create the Log Group (/ecs/php-dkr-fargate-family)
+      run: |
+          aws logs create-log-group --log-group-name /ecs/php-dkr-fargate-family --region us-east-1
+
     - name: Register ECS Task Definition
       run: |
           ECS_TASK_DEFINITION=".aws/task-definition.json"
