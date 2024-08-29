@@ -84,7 +84,12 @@ jobs:
 
     - name: Create the Log Group (/ecs/php-dkr-fargate-family)
       run: |
-          aws logs create-log-group --log-group-name /ecs/php-dkr-fargate-family --region us-east-1
+          LOG_GROUP_EXISTS=$(aws logs describe-log-groups --log-group-name-prefix /ecs/php-dkr-fargate-family --region us-east-1 --query 'logGroups[?logGroupName==`/ecs/php-dkr-fargate-family`].logGroupName' --output text)
+          if [ -z "$LOG_GROUP_EXISTS" ]; then
+            aws logs create-log-group --log-group-name /ecs/php-dkr-fargate-family --region us-east-1
+          else
+            echo "Log group already exists. Skipping creation."
+          fi
 
     - name: Register ECS Task Definition
       run: |
