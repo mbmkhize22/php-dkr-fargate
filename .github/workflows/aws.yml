@@ -90,38 +90,46 @@ jobs:
         else
           echo "Fargate cluster already exists (${{ env.ECS_CLUSTER }}). Skipping creation."
         fi
+
+    - name: Create Task Definition JSON
+      run: |
+        mkdir -p .aws
+        cat <<EOT >> .aws/task-definition.json
+        {
+          "family": ${{ env.TASK_DEF_FAMILY }},
+          "networkMode": "awsvpc",
+          "containerDefinitions": [
+            {
+              "name": "${{ env.CONTAINER_NAME}}",
+              "image": "${{ steps.build-image.outputs.image }}",
+              "cpu": 256,
+              "memory": 512,
+              "essential": true,
+              "portMappings": [
+                {
+                  "containerPort": 80,
+                  "hostPort": 80,
+                  "protocol": "tcp"
+                }
+              ]
+            }
+          ],
+          "requiresCompatibilities": ["FARGATE"],
+          "cpu": "256",
+          "memory": "512",
+          "executionRoleArn": "${{ env.TASK_EXEC_ROLE_ARN }}",
+          "taskRoleArn": "${{ env.TASK_ROLE_ARN }}"
+        }
+        EOT
         
 #    - name: Download ECS task definition from S3
 #      run: |
 #          aws s3 cp s3://${{ env.BUCKET_NAME }}/task-definition.json .aws/task-definition.json
 #          
-#    - name: Register ECS Task Definition
-#      run: |
-#          ECS_TASK_DEFINITION=".aws/task-definition.json"
-#          aws ecs register-task-definition --cli-input-json file://$ECS_TASK_DEFINITION
-
-    - name: Register Task Definition
+    - name: Register ECS Task Definition
       run: |
-        aws ecs register-task-definition \
-          --family ${{ env.TASK_DEF_FAMILY }} \
-          --network-mode awsvpc \
-          --execution-role-arn ${{ env.TASK_EXEC_ROLE_ARN }} \
-          --task-role-arn ${{ env.TASK_ROLE_ARN }} \
-          --container-definitions '[{
-            "name": "${{ env.CONTAINER_NAME}}",
-            "image": "${{ steps.build-image.outputs.image }}",
-            "cpu": 256,
-            "memory": 512,
-            "essential": true,
-            "portMappings": [{
-              "containerPort": 80,
-              "hostPort": 80,
-              "protocol": "tcp"
-            }]
-          }]' \
-          --requires-compatibilities FARGATE \
-          --cpu "256" \
-          --memory "512"
+          ECS_TASK_DEFINITION=".aws/task-definition.json"
+          aws ecs register-task-definition --cli-input-json file://$ECS_TASK_DEFINITION
 
     - name: Create the Log Group (/ecs/php-dkr-fargate-family)
       run: |
