@@ -96,7 +96,7 @@ jobs:
         mkdir -p .aws
         cat <<EOT >> .aws/task-definition.json
         {
-          "family": ${{ env.TASK_DEF_FAMILY }},
+          "family": "${{ env.TASK_DEF_FAMILY }}",
           "networkMode": "awsvpc",
           "containerDefinitions": [
             {
