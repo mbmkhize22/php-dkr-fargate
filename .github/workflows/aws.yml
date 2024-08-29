@@ -43,6 +43,7 @@ env:
   TASK_DEF_FAMILY: php-dkr-fargate-family
   TASK_ROLE_ARN: arn:aws:iam::654654212338:role/ecsTaskExecutionRole
   TASK_EXEC_ROLE_ARN: arn:aws:iam::654654212338:role/ecsTaskExecutionRole
+  SUBNET: sg-07f6c5792210ad589
 
 permissions:
   contents: read
@@ -152,7 +153,7 @@ jobs:
             --launch-type FARGATE \
             --network-configuration '{
               "awsvpcConfiguration": {
-                "subnets": ["subnet-12345678"],
+                "subnets": ["${{ env.SUBNET }}"],
                 "assignPublicIp": "ENABLED"
               }
             }'
