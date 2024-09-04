@@ -45,6 +45,7 @@ env:
   TASK_EXEC_ROLE_ARN: arn:aws:iam::654654212338:role/ecsTaskExecutionRole
   SECURITYGROUP: sg-07f6c5792210ad589
   SUBNETS: '["subnet-002f0e228c8252902","subnet-0f3b7d59a70b435cf","subnet-01cfd37de02f85027","subnet-0728cadf51650b22e","subnet-0af79c5b3eb2daf46","subnet-0eb802ad3572cfda0"]'
+  TARGET_GROUP: arn:aws:elasticloadbalancing:us-east-1:654654212338:targetgroup/tg-php-fargate/3937af4519acf7e3
 
 permissions:
   contents: read
@@ -195,3 +196,11 @@ jobs:
         service: ${{ env.ECS_SERVICE }}
         cluster: ${{ env.ECS_CLUSTER }}
         wait-for-service-stability: false
+        
+    - name: Attach ECS Service to Application Load Balancer (ALB)
+      run: |
+        aws ecs update-service \
+          --cluster ${{ env.ECS_CLUSTER }} \
+          --service ${{ env.ECS_SERVICE }} \
+          --load-balancers "targetGroupArn=${{ env.TARGET_GROUP }},containerName=${{ env.CONTAINER_NAME }},containerPort=80" \
+          --desired-count 1
