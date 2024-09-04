@@ -218,6 +218,17 @@ jobs:
     
         # Set the TG_ARN as an output variable
         echo "::set-output name=tg_arn::$TG_ARN"
+
+    - name: Attach target group to ALB listener
+      run: |
+        # Create a rule to attach the target group to the listener of the ALB
+        aws elbv2 create-rule \
+          --listener-arn ${{ env.LISTENER_ARN }} \
+          --priority 1 \
+          --conditions '[{"Field":"path-pattern","Values":["/*"]}]' \
+          --actions '[{"Type":"forward","TargetGroupArn":"${{ steps.create-target-group.outputs.tg_arn }}"}]'
+    
+          --
         
     - name: Attach ECS Service to Application Load Balancer (ALB)
       run: |
