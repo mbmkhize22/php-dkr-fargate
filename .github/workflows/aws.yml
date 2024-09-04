@@ -219,6 +219,21 @@ jobs:
         # Set the TG_ARN as an output variable
         echo "::set-output name=tg_arn::$TG_ARN"
 
+    - name: Create ALB
+      id: create-alb
+      run: |
+        ALB_ARN=$(aws elbv2 create-load-balancer \
+          --name alb-php-fargate \
+          --subnets ${{ env.SUBNETS }} \
+          --security-groups ${{ env.SECURITY_GROUPS }} \
+          --scheme internet-facing \
+          --type application \
+          --ip-address-type ipv4 \
+          --query 'LoadBalancers[0].LoadBalancerArn' \
+          --output text)
+        echo "ALB ARN: $ALB_ARN"
+        echo "::set-output name=alb_arn::$ALB_ARN"
+
     - name: Create ALB Listener
       id: create-listener
       run: |
