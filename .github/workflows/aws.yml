@@ -224,7 +224,8 @@ jobs:
       run: |
         ALB_ARN=$(aws elbv2 create-load-balancer \
           --name alb-php-fargate \
-          --subnets ${{ env.SUBNETS }} \
+          #--subnets ${{ env.SUBNETS }} \
+          --subnets "[\"subnet-002f0e228c8252902\",\"subnet-0f3b7d59a70b435cf\",\"subnet-01cfd37de02f85027\",\"subnet-0728cadf51650b22e\",\"subnet-0af79c5b3eb2daf46\",\"subnet-0eb802ad3572cfda0\"]" \
           --security-groups ${{ env.SECURITY_GROUPS }} \
           --scheme internet-facing \
           --type application \
