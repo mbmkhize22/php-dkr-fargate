@@ -107,7 +107,7 @@ jobs:
             {
               "name": "${{ env.CONTAINER_NAME}}",
               "image": "${{ steps.build-image.outputs.image }}",
-              "cpu": 1024,
+              "cpu": 512,
               "memory": 1024,
               "essential": true,
               "portMappings": [
@@ -120,7 +120,7 @@ jobs:
             }
           ],
           "requiresCompatibilities": ["FARGATE"],
-          "cpu": "1024",
+          "cpu": "512",
           "memory": "1024",
           "executionRoleArn": "${{ env.TASK_EXEC_ROLE_ARN }}",
           "taskRoleArn": "${{ env.TASK_ROLE_ARN }}"
