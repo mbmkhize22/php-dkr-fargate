@@ -107,8 +107,8 @@ jobs:
             {
               "name": "${{ env.CONTAINER_NAME}}",
               "image": "${{ steps.build-image.outputs.image }}",
-              "cpu": 256,
-              "memory": 512,
+              "cpu": 1024,
+              "memory": 1024,
               "essential": true,
               "portMappings": [
                 {
@@ -120,8 +120,8 @@ jobs:
             }
           ],
           "requiresCompatibilities": ["FARGATE"],
-          "cpu": "256",
-          "memory": "512",
+          "cpu": "1024",
+          "memory": "1024",
           "executionRoleArn": "${{ env.TASK_EXEC_ROLE_ARN }}",
           "taskRoleArn": "${{ env.TASK_ROLE_ARN }}"
         }
@@ -203,7 +203,7 @@ jobs:
       id: create-target-group
       run: |
         # Try to delete the old target group (if exists)
-        aws elbv2 delete-target-group --target-group-arn arn:aws:elasticloadbalancing:${{ env.AWS_REGION }}:${{ env.AWS_ACCOUNT_ID }}:targetgroup/${{ env.TARGET_GROUP_NAME }}/3937af4519acf7e3 || true
+        # aws elbv2 delete-target-group --target-group-arn arn:aws:elasticloadbalancing:${{ env.AWS_REGION }}:${{ env.AWS_ACCOUNT_ID }}:targetgroup/${{ env.TARGET_GROUP_NAME }}/3937af4519acf7e3 || true
     
         # Create a new target group with 'ip' target type and capture the ARN
         TG_ARN=$(aws elbv2 create-target-group \
